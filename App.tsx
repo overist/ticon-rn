@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Provider } from "react-redux";
 import MainScreen from "./src/screens/MainScreen";
-import { store } from "./src/redux/store";
+import { store } from "./src/store/store";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./src/screens/LoginScreen";
 import Toast from "react-native-toast-message";
 import React from "react";
-import app from "./firebase";
+import app from "./src/modules/firebase";
 
 export default function App() {
   const Stack = createNativeStackNavigator();

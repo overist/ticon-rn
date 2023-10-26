@@ -4,7 +4,7 @@ import CheckboxUnchecked from "../assets/checkbox-unchecked.svg";
 import CheckboxChecked from "../assets/checkbox-checked.svg";
 import DeleteIcon from "../assets/delete.svg";
 import { useDispatch } from "react-redux";
-import { deleteTodo, updateTodo } from "../redux/slices/todoSlice";
+import { deleteTodo, updateTodo } from "../store/slices/todoSlice";
 
 type TodoItemProps = { id: number; state: string; text: string };
 

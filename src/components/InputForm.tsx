@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addTodo } from "../redux/slices/todoSlice";
+import { addTodo } from "../store/slices/todoSlice";
 
 const InputForm = () => {
   const [currentValue, setCurrentValue] = useState("");
