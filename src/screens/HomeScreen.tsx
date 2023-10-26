@@ -16,7 +16,7 @@ import { signOut, getAuth } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 
-const MainScreen = () => {
+export default function HomeScreen() {
   const todos = useSelector((state: any) => state.todo.todos);
   const todoTasks = todos.filter((item) => item.state === "todo");
   const completedTasks = todos.filter((item) => item.state === "done");
@@ -68,9 +68,7 @@ const MainScreen = () => {
       <InputForm />
     </SafeAreaView>
   );
-};
-
-export default MainScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
