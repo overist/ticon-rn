@@ -3,12 +3,11 @@ import { Provider } from "react-redux";
 import { store } from "./src/store/store";
 import Toast from "react-native-toast-message";
 import React from "react";
-import loadFirebase from "./src/modules/firebase";
+import { getAuthInstance } from "./src/modules/firebaseConfig";
 import Navigation from "./src/navigation";
 
 export default function App() {
-  loadFirebase();
-
+  getAuthInstance();
   return (
     <>
       <Provider store={store}>

@@ -17,6 +17,7 @@ import {
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { GoogleAuthProvider } from "firebase/auth";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +28,8 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigation.replace("Main");
+        console.log(user);
+        navigation.replace("bottom");
       }
     });
     return unsubscribe;
