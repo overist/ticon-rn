@@ -3,6 +3,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "../screens/HomeScreen";
+import JoinMoreScreen from "../screens/JoinMoreScreen";
 
 export default function BottomNavigation() {
   const Tab = createBottomTabNavigator();
@@ -32,7 +33,7 @@ export default function BottomNavigation() {
       })}
     >
       <Tab.Screen name="home" component={HomeScreen} />
-      <Tab.Screen name="chat" component={HomeScreen} />
+      <Tab.Screen name="chat" component={JoinMoreScreen} />
     </Tab.Navigator>
   );
 }

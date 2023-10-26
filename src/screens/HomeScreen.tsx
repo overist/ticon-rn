@@ -26,7 +26,7 @@ export default function HomeScreen() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigation.replace("Login");
+      navigation.replace("login");
     } catch (error) {
       console.log(error.message);
     }
