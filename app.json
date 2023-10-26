@@ -22,7 +22,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ov3rist.rntemplate"
@@ -32,11 +34,14 @@
         "foregroundImage": "src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.ov3rist.rntemplate"
+      "package": "com.ov3rist.rntemplate",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "extra": {
       "eas": {
-        "projectId": "d04989cf-63e0-479f-9df3-70b04ca3a44e"
+        "projectId": "1fa61a09-1f2f-42e0-9102-9859072c129f"
       }
     }
   }

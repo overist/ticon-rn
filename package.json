@@ -5,8 +5,8 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "doctor": "npx expo-doctor",
     "doctor-install": "npx expo install --check",
     "ios-preview-build": "eas build -p ios --profile preview",
@@ -34,7 +34,8 @@
     "react-native-toast-message": "^2.1.7",
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "expo-status-bar": "~1.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
