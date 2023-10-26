@@ -3,9 +3,7 @@ import { Image, Button, View, Platform, Pressable } from "react-native";
 import Placeholder from "../assets/placeholder.svg";
 import * as ExpoImagePicker from "expo-image-picker";
 
-export default function ImagePicker() {
-  const [image, setImage] = useState(null);
-
+export default function ImagePicker({ image, setImage }) {
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ExpoImagePicker.launchImageLibraryAsync({

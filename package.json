@@ -5,17 +5,19 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "doctor": "npx expo-doctor",
     "doctor-install": "npx expo install --check",
     "ios-preview-build": "eas build -p ios --profile preview",
-    "ios-preview-run": "eas build:run -p ios --profile preview"
+    "ios-preview-run": "eas build:run -p ios --profile preview",
+    "pod": "cd ios && pod install && cd .."
   },
   "dependencies": {
     "@babel/runtime": "^7.23.2",
     "@expo/vector-icons": "^13.0.0",
     "@react-native-async-storage/async-storage": "^1.19.3",
+    "@react-native-picker/picker": "^2.5.1",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.16",
@@ -24,6 +26,7 @@
     "expo": "^49.0.16",
     "expo-image-picker": "~14.3.2",
     "expo-splash-screen": "~0.20.5",
+    "expo-status-bar": "~1.6.0",
     "firebase": "^10.5.0",
     "react": "18.2.0",
     "react-native": "^0.72.6",
