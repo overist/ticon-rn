@@ -12,7 +12,7 @@ import auth from "@react-native-firebase/auth";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import GoogleAuthButton from "./common/GoogleAuthButton";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +20,7 @@ const LoginScreen = () => {
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   useEffect(() => {
-    // 로그인 상태 확인 이벤트 리스너 추가
+    // 로그인 상태 확인 이벤트 리스너 추가 (구글로그인도 이벤트 캐치됨)
     const unsubscribe = auth().onAuthStateChanged((user) => {
       if (user) {
         console.log(user);

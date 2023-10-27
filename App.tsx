@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Provider } from "react-redux";
-import { store } from "./src/store/store";
 import Toast from "react-native-toast-message";
 import React, { useEffect } from "react";
-import { getAuthInstance } from "./src/modules/firebaseConfig";
 import Navigation from "./src/navigation";
 import * as SplashScreen from "expo-splash-screen";
+import { RecoilRoot } from "recoil";
+import ReactNativeRecoilPersist, {
+  ReactNativeRecoilPersistGate,
+} from "react-native-recoil-persist";
 
 export default function App() {
   useEffect(() => {
@@ -15,12 +16,13 @@ export default function App() {
     hideSplashScreen();
   }, []);
 
-  getAuthInstance();
   return (
     <>
-      <Provider store={store}>
-        <Navigation />
-      </Provider>
+      <RecoilRoot>
+        <ReactNativeRecoilPersistGate store={ReactNativeRecoilPersist}>
+          <Navigation />
+        </ReactNativeRecoilPersistGate>
+      </RecoilRoot>
       <Toast />
     </>
   );

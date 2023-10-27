@@ -2,6 +2,8 @@ import { Button, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import auth from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 GoogleSignin.configure({
   webClientId:
@@ -9,6 +11,8 @@ GoogleSignin.configure({
 });
 
 export default function GoogleAuthButton({ Trigger }) {
+  const navigation = useNavigation<StackNavigationProp<any>>();
+
   const signIn = async () => {
     try {
       // Sign in with Google
@@ -18,9 +22,7 @@ export default function GoogleAuthButton({ Trigger }) {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       // Sign in to Firebase with the Google Auth credentials
-      const { user } = await auth().signInWithCredential(googleCredential);
-
-      console.log("user", user);
+      await auth().signInWithCredential(googleCredential);
     } catch (error) {
       console.error(error);
     }

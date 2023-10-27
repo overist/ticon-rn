@@ -7,20 +7,21 @@ import {
   StatusBar,
   TouchableOpacity,
   View,
+  Alert,
+  Button,
 } from "react-native";
-import React from "react";
-import InputForm from "../components/InputForm";
-import TodoItem from "../components/TodoItem";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
+import firestore from "@react-native-firebase/firestore";
+import { useRecoilState } from "recoil";
+import { testAtom } from "../store/atoms";
 
 export default function HomeScreen() {
-  const todos = useSelector((state: any) => state.todo.todos);
-  const todoTasks = todos.filter((item) => item.state === "todo");
-  const completedTasks = todos.filter((item) => item.state === "done");
   const navigation = useNavigation<StackNavigationProp<any>>();
+
+  const [test, setTest] = useRecoilState(testAtom);
 
   const handleLogout = async () => {
     try {
@@ -30,41 +31,35 @@ export default function HomeScreen() {
       console.log(error.message);
     }
   };
+
+  useEffect(() => {
+    Alert.alert(test);
+  }, [test]);
+
+  useEffect(() => {
+    const userRef = firestore().collection("users").doc();
+    const unsubscribe = userRef.onSnapshot((doc) => {
+      console.log("fuck", doc);
+      if (doc.exists) {
+        console.log("usersex", doc.data());
+      } else {
+        console.log("No user data found!");
+      }
+    });
+
+    return unsubscribe; // 이벤트 구독 취소
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={"default"} />
       <View style={styles.headerContainer}>
-        <Text style={styles.pageTitle}>ToDo App</Text>
+        <Text style={styles.pageTitle}>TICON CHAT</Text>
         <TouchableOpacity style={styles.logOutButton} onPress={handleLogout}>
-          <Text style={styles.logOutText}>-</Text>
+          <Text style={styles.logOutText}>로그아웃</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.listView}>
-        <Text style={styles.listTitle}>할 일</Text>
-        {todoTasks.length !== 0 ? (
-          <FlatList
-            data={todoTasks}
-            renderItem={({ item }) => <TodoItem {...item} />}
-            keyExtractor={(item) => item.id}
-          />
-        ) : (
-          <Text style={styles.emptyListText}>할 일이 없습니다.</Text>
-        )}
-      </View>
-      <View style={styles.separator} />
-      <View style={styles.listView}>
-        <Text style={styles.listTitle}>완료된 일</Text>
-        {completedTasks.length !== 0 ? (
-          <FlatList
-            data={completedTasks}
-            renderItem={({ item }) => <TodoItem {...item} />}
-            keyExtractor={(item) => item.id}
-          />
-        ) : (
-          <Text style={styles.emptyListText}>완료된 일이 없습니다.</Text>
-        )}
-      </View>
-      <InputForm />
+      <Button title="test" onPress={() => setTest("qweasd")} />
     </SafeAreaView>
   );
 }
@@ -75,52 +70,25 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? 20 : 0,
     backgroundColor: "#f7f8fa",
   },
-  pageTitle: {
-    marginBottom: 35,
-    paddingHorizontal: 15,
-    fontSize: 54,
-    fontWeight: "600",
-  },
-  separator: {
-    marginHorizontal: 10,
-    marginTop: 25,
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.2)",
-  },
-  listView: {
-    flex: 1,
-  },
-  listTitle: {
-    marginBottom: 25,
-    paddingHorizontal: 15,
-    fontSize: 41,
-    fontWeight: "500",
-  },
-  emptyListText: {
-    paddingTop: 10,
-    paddingBottom: 15,
-    paddingHorizontal: 15,
-    fontSize: 15,
-    lineHeight: 20,
-    color: "#737373",
-  },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 15,
     justifyContent: "space-between",
+  },
+  pageTitle: {
+    fontSize: 35,
+    fontWeight: "600",
   },
   logOutText: {
     color: "white",
-    fontSize: 25,
+    fontSize: 20,
   },
   logOutButton: {
-    marginBottom: 25,
-    marginRight: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     justifyContent: "center",
     alignItems: "center",
-    width: 42,
-    height: 42,
     backgroundColor: "rgba(0,0,0,0.7)",
     borderRadius: 4,
   },
