@@ -12,7 +12,7 @@ import React from "react";
 import InputForm from "../components/InputForm";
 import TodoItem from "../components/TodoItem";
 import { useSelector } from "react-redux";
-import { signOut, getAuth } from "firebase/auth";
+import auth from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 
@@ -20,12 +20,11 @@ export default function HomeScreen() {
   const todos = useSelector((state: any) => state.todo.todos);
   const todoTasks = todos.filter((item) => item.state === "todo");
   const completedTasks = todos.filter((item) => item.state === "done");
-  const auth = getAuth();
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await auth().signOut();
       navigation.replace("login");
     } catch (error) {
       console.log(error.message);
