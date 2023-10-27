@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "564130301164",
+    "project_id": "rntest-f0c40",
+    "storage_bucket": "rntest-f0c40.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564130301164:android:4e7182288eaf8efa2391c9",
+        "android_client_info": {
+          "package_name": "com.ov3rist.rntemplate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "564130301164-s62qsrb50gf1urtiq77l516gs9dc8bg5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZicNuCIzxKMem0MxpLT568tn67A4yabM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564130301164-s62qsrb50gf1urtiq77l516gs9dc8bg5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "564130301164-6e73sgqv4pj6167ei9tkaukgpo3r4tn3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ov3rist.rntemplate"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
