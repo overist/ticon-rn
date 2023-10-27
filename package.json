@@ -12,8 +12,7 @@
     "ios-preview-build": "eas build -p ios --profile preview",
     "ios-preview-run": "eas build:run -p ios --profile preview",
     "pod": "cd ios && pod install && cd ..",
-    "rmpod": "rm -rf ios/Pods ios/Podfile.lock ios/build",
-    "clean": "rm -rf node_modules && yarn install && yarn pod &&  npx expo start --clear",
+    "clean": "rm -rf node_modules && yarn install && rm -rf ios/Pods ios/Podfile.lock ios/build && yarn pod",
     "buildclean": "rm -rf ~/Library/Developer/Xcode/DerivedData && rm -rf ios/build && pod cache clean --all",
     "prebuildclean": "expo prebuild --clean"
   },
@@ -24,6 +23,7 @@
     "@react-native-community/datetimepicker": "7.2.0",
     "@react-native-firebase/app": "^18.6.0",
     "@react-native-firebase/auth": "^18.6.0",
+    "@react-native-firebase/firestore": "^18.6.0",
     "@react-native-google-signin/google-signin": "^10.1.0",
     "@react-native-picker/picker": "^2.5.1",
     "@react-navigation/bottom-tabs": "^6.5.11",
