@@ -18,6 +18,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 import firestore from "@react-native-firebase/firestore";
+import storage from "@react-native-firebase/storage";
 import auth from "@react-native-firebase/auth";
 import { userAtom } from "../../store/atoms";
 import { useSetRecoilState } from "recoil";
@@ -36,6 +37,37 @@ export default function JoinScreen() {
 
   const handleUsernameChange = (text) => {
     setUsername(text);
+  };
+
+  const uploadImageToFirebase = async (uri) => {
+    if (!uri) {
+      console.error("No image URI provided.");
+      return null;
+    }
+    console.log("image uri", uri);
+
+    const user = auth().currentUser;
+    if (!user) {
+      console.error("No user is signed in.");
+      return null;
+    }
+    console.log("user uid", user.uid);
+
+    const filename = uri.substring(uri.lastIndexOf("/") + 1);
+    const uploadUri = Platform.OS === "ios" ? uri.replace("file://", "") : uri;
+    const storageRef = storage().ref(`images/${user.uid}/${filename}`);
+
+    try {
+      const response = await fetch(uploadUri);
+      const blob = await response.blob();
+      await storageRef.put(blob);
+
+      const url = await storageRef.getDownloadURL();
+      return url;
+    } catch (e) {
+      console.error("Image upload failed:", e);
+      return null;
+    }
   };
 
   const handleSubmit = async () => {
@@ -60,12 +92,28 @@ export default function JoinScreen() {
         return;
       }
 
-      // Firebase Save
+      if (!image) {
+        alert("사진을 선택해주세요");
+        return;
+      }
+
+      // upload image to firebase storage
+      let imageUrl = null;
+      if (image) {
+        imageUrl = await uploadImageToFirebase(image);
+        if (!imageUrl) {
+          alert("이미지 업로드 실패");
+          return;
+        }
+      }
+
+      // save to firestore
       const user = auth().currentUser;
       await firestore().collection("users").doc(user.uid).update({
         username,
         gender,
         birth,
+        imageUrl,
       });
 
       const userDoc = await firestore().collection("users").doc(user.uid).get();
@@ -76,6 +124,7 @@ export default function JoinScreen() {
         username: userDoc.data()?.username,
         gender: userDoc.data()?.gender,
         birth: userDoc.data()?.birth,
+        imageUrl: userDoc.data()?.imageUrl,
       });
 
       Toast.show({

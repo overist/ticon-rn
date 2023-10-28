@@ -7,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import React from "react";
 import auth from "@react-native-firebase/auth";
@@ -48,12 +49,24 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       <View style={styles.userinfoContainer}>
+        <Image
+          source={{ uri: userState.imageUrl }}
+          style={{ width: 150, height: 150, borderRadius: 100 }}
+        />
+        <Text style={styles.userinfoHead}>유저 정보</Text>
         <Text style={styles.userinfoText}>메일: {userState.email}</Text>
         <Text style={styles.userinfoText}>유져명: {userState.username}</Text>
         <Text style={styles.userinfoText}>
           성별: {userState.gender === 1 ? "남자" : "여자"}
         </Text>
-        {/* <Text>{userState.birth}</Text> */}
+      </View>
+      <View style={styles.matchStartContainer}>
+        <TouchableOpacity
+          style={styles.matchStartButton}
+          onPress={() => navigation.navigate("chatList")}
+        >
+          <Text style={styles.logOutText}>랜덤 매칭 시작</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -89,10 +102,28 @@ const styles = StyleSheet.create({
   },
   userinfoContainer: {
     alignItems: "center",
-    marginVertical: 10,
+    marginTop: 50,
+  },
+  userinfoHead: {
+    marginTop: 20,
+    fontSize: 25,
+    fontWeight: "600",
   },
   userinfoText: {
+    marginTop: 10,
     fontSize: 20,
     fontWeight: "500",
+  },
+  matchStartContainer: {
+    alignItems: "center",
+    marginTop: 50,
+  },
+  matchStartButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderRadius: 4,
   },
 });

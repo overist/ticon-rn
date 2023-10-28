@@ -26,6 +26,7 @@ export default function SplashScreen() {
             username: userDoc.data()?.username,
             gender: userDoc.data()?.gender,
             birth: userDoc.data()?.birth,
+            imageUrl: userDoc.data()?.imageUrl,
           });
         } else {
           console.log("No user data found!");
