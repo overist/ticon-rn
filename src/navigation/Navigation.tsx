@@ -5,18 +5,28 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import BottomNavigation from "./BottomNavigation";
-import HomeScreen from "../screens/HomeScreen";
-import LoginScreen from "../screens/LoginScreen";
+import LoginScreen from "../screens/auth/LoginScreen";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../store/atoms";
+import JoinScreen from "../screens/auth/JoinScreen";
 
 export default function Navigation() {
   const Stack = createNativeStackNavigator();
+  const user = useRecoilValue(userAtom);
+  const isLoggedIn = user?.email ? true : false;
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName={isLoggedIn ? "bottom" : "login"}>
         <Stack.Screen
           options={{ headerShown: false }}
           name="login"
           component={LoginScreen}
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          name="join"
+          component={JoinScreen}
         />
         <Stack.Screen
           options={{ headerShown: false }}

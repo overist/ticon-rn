@@ -10,17 +10,22 @@ import {
 
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ImagePicker from "../components/ImagePicker";
-import CustomTextInput from "./common/CustomTextInput";
-import CustomDatePicker from "./common/CustomDatePicker";
-import { getAge } from "../utils/math";
+import ImagePicker from "../../components/ImagePicker";
+import CustomTextInput from "../../components/CustomTextInput";
+import CustomDatePicker from "../../components/CustomDatePicker";
+import { getAge } from "../../utils/math";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-import GoogleAuthButton from "./common/GoogleAuthButton";
+import Toast from "react-native-toast-message";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import { userAtom } from "../../store/atoms";
+import { useSetRecoilState } from "recoil";
 
 const NOW = new Date();
 export default function JoinScreen() {
   const navigation = useNavigation<StackNavigationProp<any>>();
+  const setUserState = useSetRecoilState(userAtom);
 
   const [image, setImage] = useState(null);
   const [username, setUsername] = useState("");
@@ -39,12 +44,6 @@ export default function JoinScreen() {
     }
     setIsSubmitting(true);
     try {
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve(() => {});
-        }, 2000);
-      });
-
       // Validation
       if (username === "") {
         alert("이름을 입력해주세요");
@@ -61,11 +60,41 @@ export default function JoinScreen() {
         return;
       }
 
-      alert("회원가입이 완료되었습니다.");
+      // Firebase Save
+      const user = auth().currentUser;
+      await firestore().collection("users").doc(user.uid).update({
+        username,
+        gender,
+        birth,
+      });
 
-      navigation.replace("bottom");
+      const userDoc = await firestore().collection("users").doc(user.uid).get();
+
+      console.log("join success", userDoc.data());
+      setUserState({
+        email: userDoc.data()?.email,
+        username: userDoc.data()?.username,
+        gender: userDoc.data()?.gender,
+        birth: userDoc.data()?.birth,
+      });
+
+      Toast.show({
+        type: "success",
+        text1: "회원가입 성공",
+        text2: `회원가입이 완료되었습니다.`,
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "bottom" }],
+      });
     } catch (e) {
-      alert(e);
+      console.log("join fail", e);
+      Toast.show({
+        type: "error",
+        text1: "회원가입 실패",
+        text2: `다시 시도해주세요.`,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -82,8 +111,6 @@ export default function JoinScreen() {
             <ImagePicker image={image} setImage={setImage} />
             <Text style={styles.label}>사진을 선택해주세요</Text>
           </View>
-
-          <GoogleAuthButton />
 
           <Text style={styles.label}>이름을 입력해주세요</Text>
           <View style={styles.row}>
@@ -179,7 +206,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
   },
   row: {
     width: "100%",
@@ -188,9 +215,12 @@ const styles = StyleSheet.create({
 
   submitBtn: {
     backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 10,
+    width: "100%",
     padding: 12,
     marginTop: 15,
-    marginHorizontal: 16,
+    marginHorizontal: "5%",
     alignItems: "center",
   },
 });

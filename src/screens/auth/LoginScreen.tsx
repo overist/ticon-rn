@@ -1,5 +1,4 @@
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -12,19 +11,71 @@ import auth from "@react-native-firebase/auth";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import GoogleAuthButton from "../components/GoogleAuthButton";
+import firestore from "@react-native-firebase/firestore";
+import GoogleAuthButton from "../../components/GoogleAuthButton";
+import { userAtom } from "../../store/atoms";
+import { useResetRecoilState, useSetRecoilState } from "recoil";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation<StackNavigationProp<any>>();
+  const resetUserState = useResetRecoilState(userAtom);
+  const setUserState = useSetRecoilState(userAtom);
 
   useEffect(() => {
-    // 로그인 상태 확인 이벤트 리스너 추가 (구글로그인도 이벤트 캐치됨)
-    const unsubscribe = auth().onAuthStateChanged((user) => {
+    resetUserState();
+  }, []);
+
+  useEffect(() => {
+    // ** 로그인 상태 확인 이벤트 리스너 추가 (구글로그인도 이벤트 캐치됨)
+    const unsubscribe = auth().onAuthStateChanged(async (user) => {
       if (user) {
-        console.log(user);
-        navigation.replace("bottom");
+        const userDoc = await firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
+        console.log("로그인 성공", userDoc);
+        Toast.show({
+          type: "success",
+          text1: "로그인 성공",
+          text2: `${userDoc.data().email}으로 로그인되었습니다.`,
+        });
+
+        if (!user.uid) {
+          console.log("No user data found!");
+          resetUserState();
+          return;
+        }
+
+        try {
+          const userDoc = await firestore()
+            .collection("users")
+            .doc(user.uid)
+            .get();
+
+          if (userDoc.data().username) {
+            console.log("firestore user", userDoc);
+            setUserState({
+              email: userDoc.data()?.email,
+              username: userDoc.data()?.username,
+              gender: userDoc.data()?.gender,
+              birth: userDoc.data()?.birth,
+            });
+            navigation.replace("bottom");
+          } else {
+            console.log("No user data found!");
+            navigation.push("join");
+          }
+        } catch (error) {
+          console.log(error);
+          resetUserState();
+          Toast.show({
+            type: "error",
+            text1: "유저 정보 로드 실패",
+            text2: `다시 로그인해주세요.`,
+          });
+        }
       }
     });
     // 로그인 성공시 이벤트 리스너 삭제
@@ -38,20 +89,23 @@ const LoginScreen = () => {
         password
       );
       const user = userCredential.user;
-      console.log("user", user);
+      await firestore().collection("users").doc(user.uid).set({
+        email: user.email,
+      });
+
+      console.log("회원가입 성공", user);
       Toast.show({
         type: "success",
         text1: "회원가입 성공",
         text2: `${email}으로 가입되었습니다.`,
       });
     } catch (error) {
-      console.log(error.message);
-      Alert.alert(
-        "회원가입 도중에 문제가 발생했습니다.",
-        error.message,
-        [{ text: "닫기", onPress: () => console.log("닫기") }],
-        { cancelable: true }
-      );
+      console.log("회원가입 에러", error.message);
+      Toast.show({
+        type: "error",
+        text1: "회원가입 실패",
+        text2: `회원가입 도중에 문제가 발생했습니다.`,
+      });
     }
   };
 
@@ -62,14 +116,14 @@ const LoginScreen = () => {
         password
       );
       const user = userCredential.user;
-      console.log(user);
+      console.log("handleLogin", user);
     } catch (error) {
-      Alert.alert(
-        "로그인 도중에 문제가 발생했습니다.",
-        error.message,
-        [{ text: "닫기", onPress: () => console.log("닫기") }],
-        { cancelable: true }
-      );
+      console.log("로그인실패", error);
+      Toast.show({
+        type: "error",
+        text1: "로그인 실패",
+        text2: `로그인 도중에 문제가 발생했습니다.`,
+      });
     }
   };
 
@@ -113,7 +167,7 @@ const LoginScreen = () => {
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  source={require("../assets/icon-google-logo.jpeg")}
+                  source={require("../../assets/icon-google-logo.jpeg")}
                   style={{ width: 20, height: 20, marginRight: 10 }}
                 />
                 <Text style={styles.buttonOutlineText}>구글로 가입/로그인</Text>

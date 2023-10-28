@@ -2,8 +2,8 @@ import { View, Text } from "react-native";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import HomeScreen from "../screens/HomeScreen";
-import JoinScreen from "../screens/JoinScreen";
+import HomeScreen from "../screens/home/HomeScreen";
+import ChatScreen from "../screens/chat/ChatListScreen";
 
 export default function BottomNavigation() {
   const Tab = createBottomTabNavigator();
@@ -34,7 +34,7 @@ export default function BottomNavigation() {
     >
       {/* <Tab.Screen name="home" component={TestScreen} /> */}
       <Tab.Screen name="home" component={HomeScreen} />
-      <Tab.Screen name="chat" component={JoinScreen} />
+      <Tab.Screen name="chat" component={ChatScreen} />
     </Tab.Navigator>
   );
 }

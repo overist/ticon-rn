@@ -1,26 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
-import React, { useEffect } from "react";
-import Navigation from "./src/navigation";
-import * as SplashScreen from "expo-splash-screen";
+import React from "react";
 import { RecoilRoot } from "recoil";
 import ReactNativeRecoilPersist, {
   ReactNativeRecoilPersistGate,
 } from "react-native-recoil-persist";
+import Toast from "react-native-toast-message";
+import SplashScreen from "./src/screens/splash/SplashScreen";
 
 export default function App() {
-  useEffect(() => {
-    async function hideSplashScreen() {
-      await SplashScreen.hideAsync();
-    }
-    hideSplashScreen();
-  }, []);
-
   return (
     <>
       <RecoilRoot>
         <ReactNativeRecoilPersistGate store={ReactNativeRecoilPersist}>
-          <Navigation />
+          <SplashScreen />
         </ReactNativeRecoilPersistGate>
       </RecoilRoot>
       <Toast />
