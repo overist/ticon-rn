@@ -10,70 +10,23 @@ import React, { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import Toast from "react-native-toast-message";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import firestore from "@react-native-firebase/firestore";
 import GoogleAuthButton from "../../components/GoogleAuthButton";
 import { userAtom } from "../../store/atoms";
 import { useResetRecoilState, useSetRecoilState } from "recoil";
+import { handleAuth } from "../../common/handleAuth";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const LoginScreen = () => {
+  const navigation = useNavigation<StackNavigationProp<any>>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigation = useNavigation<StackNavigationProp<any>>();
   const resetUserState = useResetRecoilState(userAtom);
   const setUserState = useSetRecoilState(userAtom);
 
   useFocusEffect(() => {
     resetUserState();
   });
-
-  const authExcute = async (user) => {
-    if (user) {
-      const userDoc = await firestore().collection("users").doc(user.uid).get();
-      console.log("회원정보 저장 성공", userDoc);
-      Toast.show({
-        type: "success",
-        text1: "회원정보 저장 성공",
-        text2: `${userDoc.data().email}으로 인증`,
-      });
-
-      if (!user.uid) {
-        console.log("No user data found!");
-        resetUserState();
-        return;
-      }
-
-      try {
-        const userDoc = await firestore()
-          .collection("users")
-          .doc(user.uid)
-          .get();
-
-        if (userDoc.data().username) {
-          console.log("firestore user", userDoc);
-          setUserState({
-            email: userDoc.data()?.email,
-            username: userDoc.data()?.username,
-            gender: userDoc.data()?.gender,
-            birth: userDoc.data()?.birth,
-            imageUrl: userDoc.data()?.imageUrl,
-          });
-          navigation.replace("bottom");
-        } else {
-          console.log("No user data found!");
-          navigation.push("join");
-        }
-      } catch (error) {
-        console.log(error);
-        resetUserState();
-        Toast.show({
-          type: "error",
-          text1: "유저 정보 로드 실패",
-          text2: `다시 로그인해주세요.`,
-        });
-      }
-    }
-  };
 
   const handleSignUp = async () => {
     try {
@@ -86,7 +39,7 @@ const LoginScreen = () => {
         email: user.email,
       });
 
-      authExcute(user);
+      handleAuth(user, setUserState, resetUserState, navigation);
 
       console.log("회원가입 성공", user);
       Toast.show({
@@ -112,7 +65,7 @@ const LoginScreen = () => {
       );
       const user = userCredential.user;
       console.log("handleLogin", user);
-      authExcute(user);
+      handleAuth(user, setUserState, resetUserState, navigation);
     } catch (error) {
       console.log("로그인실패", error);
       Toast.show({

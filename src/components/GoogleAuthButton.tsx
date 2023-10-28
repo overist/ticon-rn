@@ -1,9 +1,12 @@
-import { Button, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import auth from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { handleAuth } from "../common/handleAuth";
+import { userAtom } from "../store/atoms";
+import { useResetRecoilState, useSetRecoilState } from "recoil";
+import firestore from "@react-native-firebase/firestore";
 
 GoogleSignin.configure({
   webClientId:
@@ -12,6 +15,8 @@ GoogleSignin.configure({
 
 export default function GoogleAuthButton({ Trigger }) {
   const navigation = useNavigation<StackNavigationProp<any>>();
+  const resetUserState = useResetRecoilState(userAtom);
+  const setUserState = useSetRecoilState(userAtom);
 
   const signIn = async () => {
     try {
@@ -22,7 +27,15 @@ export default function GoogleAuthButton({ Trigger }) {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       // Sign in to Firebase with the Google Auth credentials
-      await auth().signInWithCredential(googleCredential);
+      const userCredential = await auth().signInWithCredential(
+        googleCredential
+      );
+      const user = userCredential.user;
+      await firestore().collection("users").doc(user.uid).set({
+        email: user.email,
+      });
+
+      handleAuth(user, setUserState, resetUserState, navigation);
     } catch (error) {
       console.error(error);
     }
