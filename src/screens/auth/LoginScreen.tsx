@@ -34,6 +34,7 @@ const LoginScreen = () => {
         email,
         password
       );
+      console.log("userCredential", userCredential);
       const user = userCredential.user;
       await firestore().collection("users").doc(user.uid).set({
         email: user.email,

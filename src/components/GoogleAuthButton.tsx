@@ -31,6 +31,15 @@ export default function GoogleAuthButton({ Trigger }) {
         googleCredential
       );
       const user = userCredential.user;
+
+      // firestore에 user 정보가 있는지 확인
+      const userDoc = await firestore().collection("users").doc(user.uid).get();
+      if (userDoc.data().username) {
+        handleAuth(user, setUserState, resetUserState, navigation);
+        return;
+      }
+
+      // firestore에 user 정보 저장
       await firestore().collection("users").doc(user.uid).set({
         email: user.email,
       });

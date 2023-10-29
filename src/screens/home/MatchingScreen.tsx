@@ -17,7 +17,7 @@ import { useResetRecoilState, useRecoilValue } from "recoil";
 import { userAtom } from "../../store/atoms";
 import Toast from "react-native-toast-message";
 
-export default function HomeScreen() {
+export default function MatchingScreen() {
   const navigation = useNavigation<StackNavigationProp<any>>();
   const resetUserState = useResetRecoilState(userAtom);
   const userState = useRecoilValue(userAtom);
@@ -59,11 +59,12 @@ export default function HomeScreen() {
         </Text>
       </View>
       <View style={styles.matchStartContainer}>
+        <Text style={styles.loadingText}>매칭 중입니다...</Text>
         <TouchableOpacity
           style={styles.matchStartButton}
-          onPress={() => navigation.push("matching")}
+          onPress={() => navigation.navigate("home")}
         >
-          <Text style={styles.logOutText}>랜덤 매칭 시작</Text>
+          <Text style={styles.logOutText}>취소하기</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -123,5 +124,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.7)",
     borderRadius: 4,
+  },
+  loadingText: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 20,
   },
 });

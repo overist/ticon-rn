@@ -14,10 +14,10 @@ export const handleAuth = async (
   }
 
   const userDoc = await firestore().collection("users").doc(user.uid).get();
-  console.log("회원정보 저장 성공", userDoc);
+  console.log("회원정보 조회 성공", userDoc);
   Toast.show({
     type: "success",
-    text1: "회원정보 저장 성공",
+    text1: "회원정보 조회 성공",
     text2: `${userDoc.data().email}으로 인증`,
   });
 
@@ -35,7 +35,7 @@ export const handleAuth = async (
       });
       navigation.replace("bottom");
     } else {
-      console.log("No user data found!");
+      console.log("No user data found!", userDoc.data());
       navigation.push("join");
     }
   } catch (error) {
