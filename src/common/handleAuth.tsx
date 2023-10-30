@@ -27,6 +27,7 @@ export const handleAuth = async (
     if (userDoc.data().username) {
       console.log("firestore user", userDoc);
       setUserState({
+        uid: user.uid,
         email: userDoc.data()?.email,
         username: userDoc.data()?.username,
         gender: userDoc.data()?.gender,

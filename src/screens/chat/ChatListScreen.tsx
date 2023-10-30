@@ -19,7 +19,7 @@ const ChatItem = ({ item, index }) => {
   return (
     <TouchableOpacity
       style={[styles.itemContainer, isFirstChild && { borderTopWidth: 1 }]}
-      onPress={() => navigation.navigate("chatDetail")}
+      onPress={() => navigation.push("chatDetail", { matchId: item.id })}
     >
       <View style={styles.itemProfileContainer}>
         <Image
@@ -38,7 +38,9 @@ const ChatItem = ({ item, index }) => {
     </TouchableOpacity>
   );
 };
+
 export default function ChatListScreen() {
+  // DB 구독 및 스테이트화 필요
   const data = [
     { id: 1, username: "유저1", count: 1 },
     { id: 2, username: "유저2", count: 0 },

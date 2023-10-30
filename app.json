@@ -31,7 +31,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ov3rist.rntemplate",
@@ -43,7 +45,9 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.ov3rist.rntemplate",
-      "permissions": ["android.permission.RECORD_AUDIO"],
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "googleServicesFile": "./google-services.json"
     },
     "extra": {

@@ -1,5 +1,34 @@
+import React, { useEffect, useState } from "react";
+import { View, Text, Button } from "react-native";
 import firestore from "@react-native-firebase/firestore";
-//ANCHOR CREATE
+
+// ANCHOR Subscribe to a document
+const useDocumentSubscription = (collection, docId) => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  // 데이터 실간구독 -> 리액트 스테이트 반환 훅스
+  useEffect(() => {
+    const subscriber = firestore()
+      .collection(collection)
+      .doc(docId)
+      .onSnapshot(
+        (documentSnapshot) => {
+          setData(documentSnapshot.data());
+        },
+        (err) => {
+          setError(err);
+        }
+      );
+
+    // Stop listening for updates when no longer required
+    return () => subscriber();
+  }, [collection, docId]);
+
+  return { data, error };
+};
+
+//ANCHOR CRUD Functions
 const createUser = async (userId, userData) => {
   try {
     await firestore().collection("users").doc(userId).set(userData);
@@ -9,10 +38,6 @@ const createUser = async (userId, userData) => {
   }
 };
 
-// 사용 예:
-createUser("user-id", { email: "user@example.com", name: "User Name" });
-
-//ANCHOR READ
 const readUser = async (userId) => {
   try {
     const documentSnapshot = await firestore()
@@ -29,10 +54,6 @@ const readUser = async (userId) => {
   }
 };
 
-// 사용 예:
-readUser("user-id");
-
-//ANCHOR UPDATE
 const updateUser = async (userId, updatedData) => {
   try {
     await firestore().collection("users").doc(userId).update(updatedData);
@@ -42,21 +63,47 @@ const updateUser = async (userId, updatedData) => {
   }
 };
 
-// 사용 예:
-updateUser("user-id", { email: "new-email@example.com" });
+const deleteUser = async (userId) => {
+  try {
+    await firestore().collection("users").doc(userId).delete();
+    console.log("User deleted successfully");
+  } catch (error) {
+    console.error("Error deleting user: ", error.message);
+  }
+};
 
-// ANCHOR useEffect Hook & lifecycle
-import React, { useEffect } from "react";
+//ANCHOR Component
 function User({ userId }) {
-  useEffect(() => {
-    const subscriber = firestore()
-      .collection("Users")
-      .doc(userId)
-      .onSnapshot((documentSnapshot) => {
-        console.log("User data: ", documentSnapshot.data());
-      });
+  const { data, error } = useDocumentSubscription("users", userId);
 
-    // Stop listening for updates when no longer required
-    return () => subscriber();
-  }, [userId]);
+  if (error) {
+    console.error("Error subscribing to document: ", error.message);
+  }
+
+  return (
+    <View>
+      {data ? (
+        <View>
+          <Text>Name: {data.name}</Text>
+          <Text>Email: {data.email}</Text>
+        </View>
+      ) : (
+        <Text>Loading...</Text>
+      )}
+      <Button
+        title="Create User"
+        onPress={() =>
+          createUser(userId, { name: "New User", email: "new@example.com" })
+        }
+      />
+      <Button title="Read User" onPress={() => readUser(userId)} />
+      <Button
+        title="Update User"
+        onPress={() => updateUser(userId, { email: "updated@example.com" })}
+      />
+      <Button title="Delete User" onPress={() => deleteUser(userId)} />
+    </View>
+  );
 }
+
+export default User;

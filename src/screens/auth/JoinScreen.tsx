@@ -120,6 +120,7 @@ export default function JoinScreen() {
 
       console.log("join success", userDoc.data());
       setUserState({
+        uid: user.uid,
         email: userDoc.data()?.email,
         username: userDoc.data()?.username,
         gender: userDoc.data()?.gender,

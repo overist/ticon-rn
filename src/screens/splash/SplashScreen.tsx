@@ -22,6 +22,7 @@ export default function SplashScreen() {
           console.log("app firestore user check", userDoc);
 
           setUserState({
+            uid: userId,
             email: userDoc.data()?.email,
             username: userDoc.data()?.username,
             gender: userDoc.data()?.gender,

@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function ChatDetailScreen() {
+export default function ChatDetailScreen({ route }) {
+  const { matchId } = route.params;
+  console.log("matchId", matchId);
+
   const [messages, setMessages] = useState([
     { id: 1, text: "안녕하세요!!!!!!!!!!!!", sender: "other", time: "17:12" },
     { id: 2, text: "안녕하세요!!!!!!!!!!!", sender: "me", time: "17:11" },

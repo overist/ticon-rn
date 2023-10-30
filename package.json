@@ -7,6 +7,7 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:dev": "expo run:ios --dev-client",
     "doctor": "npx expo-doctor",
     "doctor-install": "npx expo install --check",
     "ios-preview-build": "eas build -p ios --profile preview",
