@@ -1,5 +1,5 @@
 // ChatListScreen.js
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FlatList,
   TouchableOpacity,
@@ -7,10 +7,19 @@ import {
   StyleSheet,
   View,
   Image,
+  Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import {
+  useRecoilState,
+  useRecoilValue,
+  useResetRecoilState,
+  useSetRecoilState,
+} from "recoil";
+import { chatRoomAtom, userAtom, ChatRoomType } from "../../store/atoms";
+import firestore from "@react-native-firebase/firestore";
 
 const ChatItem = ({ item, index }) => {
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -19,20 +28,27 @@ const ChatItem = ({ item, index }) => {
   return (
     <TouchableOpacity
       style={[styles.itemContainer, isFirstChild && { borderTopWidth: 1 }]}
-      onPress={() => navigation.push("chatDetail", { matchId: item.id })}
+      onPress={() =>
+        navigation.navigate("chatStack", {
+          screen: "chatDetail",
+          params: {
+            matchId: item.id,
+          },
+        })
+      }
     >
       <View style={styles.itemProfileContainer}>
         <Image
           style={styles.itemProfileImage}
           source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Userimage.png?20181011102003",
+            uri: item.partnerImageUrl,
           }}
         />
-        <Text style={styles.itemProfileName}>{item.username}</Text>
+        <Text style={styles.itemProfileName}>{item.partnerName}</Text>
       </View>
       {item.count !== 0 && (
         <View style={[styles.itemChatCountContainer]}>
-          <Text style={styles.itemChatCount}>{item.count}</Text>
+          <Text style={styles.itemChatCount}>{2}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -40,18 +56,93 @@ const ChatItem = ({ item, index }) => {
 };
 
 export default function ChatListScreen() {
-  // DB 구독 및 스테이트화 필요
-  const data = [
-    { id: 1, username: "유저1", count: 1 },
-    { id: 2, username: "유저2", count: 0 },
-  ]; // 채팅 목록 데이터
+  // matches 조회 - 내아이디가 들어감 - 내가 OK누름 -> 상대방아이디 획득, matchId 획득 publisher, publisherOk, status, subscriber, subscriberOk
+  // chats 구독 - matchId가 도큐먼트네임 - content, senderId, timestamp, type
+  const userState = useRecoilValue(userAtom);
+  const [chatRoomState, setChatRoomState] = useRecoilState(chatRoomAtom);
+  // const chatRoomReset = useResetRecoilState(chatRoomAtom);
+
+  const readMatch = async () => {
+    const userId = userState.uid;
+    try {
+      const querySnapshot = await firestore()
+        .collection("matches")
+        .where("publisher", "==", userId)
+        .where("publisherOk", "==", 1)
+        .get();
+
+      const querySnapshot2 = await firestore()
+        .collection("matches")
+        .where("subscriber", "==", userId)
+        .where("subscriberOk", "==", 1)
+        .get();
+
+      const documents = querySnapshot.docs
+        .concat(querySnapshot2.docs)
+        .map((d) => {
+          const dataList: any = { ...d.data(), id: d.id };
+          return dataList; // id: match id, data: match data
+        });
+
+      const sortedData = documents.sort((a, b) => {
+        // timestamp desc 정렬
+        return a.timestamp.toDate() - b.timestamp.toDate();
+      });
+
+      const newData = [];
+      for (const data of sortedData) {
+        const role = data.publisher === userId ? "publisher" : "subscriber";
+        const partnerId =
+          data.publisher === userId ? data.subscriber : data.publisher;
+
+        // 유저정보조회
+        const partnerData = await firestore()
+          .collection("users")
+          .doc(partnerId)
+          .get();
+        const partnerName = partnerData.data().username;
+        const partnerImageUrl = partnerData.data().imageUrl;
+        const partnerGender = partnerData.data().gender;
+
+        newData.push({
+          matchId: data.id,
+          role: role,
+          partnerId: partnerId,
+          partnerName: partnerName,
+          partnerImageUrl: partnerImageUrl,
+          partnerGender: partnerGender,
+          timestamp: data.timestamp,
+        });
+      }
+
+      setChatRoomState(newData);
+    } catch (error) {
+      console.error("Error reading user: ", userId, error.message);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      // chatRoomReset();
+      await readMatch();
+      console.log("chatRoomState", chatRoomState);
+    })();
+  }, []);
+
+  // const data = [
+  //   { id: 1, username: "유저1", count: 1 },
+  //   { id: 2, username: "유저2", count: 0 },
+  // ]; // 채팅 목록 데이터
 
   return (
     <SafeAreaView style={styles.container}>
+      <Button title="test" onPress={() => console.log(chatRoomState)} />
       <FlatList
-        data={data}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item, index }) => <ChatItem item={item} index={index} />}
+        data={chatRoomState}
+        keyExtractor={(item) => item.matchId}
+        renderItem={({ item, index }) => (
+          <ChatItem key={item.matchId} item={item} index={index} />
+        )}
       />
     </SafeAreaView>
   );

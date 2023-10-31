@@ -12,14 +12,15 @@ import {
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import { useResetRecoilState, useRecoilValue } from "recoil";
-import { userAtom } from "../../store/atoms";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { chatRoomAtom, userAtom } from "../../store/atoms";
 import firestore from "@react-native-firebase/firestore";
 import Toast from "react-native-toast-message";
 
 export default function MatchingScreen() {
   const navigation = useNavigation<StackNavigationProp<any>>();
   const userState = useRecoilValue(userAtom);
+  const setChatRoomState = useSetRecoilState(chatRoomAtom);
   const userId = userState.uid;
   const [matchData, setMatchData] = useState(null);
   const [partnerUserData, setPartnerUserData] = useState(null);
@@ -158,19 +159,52 @@ export default function MatchingScreen() {
 
   // ANCHOR : firebase snapshot에 의해 업데이트되는 state를 감시하며 매칭 성공 시, 채팅 화면으로 이동
   useEffect(() => {
-    if (
-      matchData?.status === "success" &&
-      matchData?.publisherOk === 1 &&
-      matchData?.subscriberOk === 1
-    ) {
-      // chatStack의 chatDetail로 이동
-      navigation.navigate("chatStack", {
-        screen: "chatDetail",
-        params: {
-          matchId: matchData.id,
-        },
-      });
-    }
+    const pushChatDetail = async () => {
+      if (
+        matchData?.status === "success" &&
+        matchData?.publisherOk === 1 &&
+        matchData?.subscriberOk === 1
+      ) {
+        const isPublisher = matchData?.publisher === userId;
+        const partnerId = isPublisher
+          ? matchData?.subscriber
+          : matchData?.publisher;
+        // 유저정보조회
+        const partnerData = await firestore()
+          .collection("users")
+          .doc(partnerId)
+          .get();
+        const partnerName = partnerData.data().username;
+        const partnerImageUrl = partnerData.data().imageUrl;
+        const partnerGender = partnerData.data().gender;
+
+        const role = isPublisher ? "publisher" : "subscriber";
+
+        // 방 정보 스토어에 저장
+        setChatRoomState((prev) => [
+          ...prev,
+          {
+            matchId: matchData.id,
+            role: role,
+            partnerId: partnerId,
+            partnerName: partnerName,
+            partnerImageUrl: partnerImageUrl,
+            partnerGender: partnerGender,
+            timestamp: matchData.timestamp,
+          },
+        ]);
+
+        // chatStack의 chatDetail로 이동
+        navigation.reset({ routes: [{ name: "homeStack" }] });
+        navigation.navigate("chatStack", {
+          screen: "chatDetail",
+          params: {
+            matchId: matchData.id,
+          },
+        });
+      }
+    };
+    pushChatDetail();
   }, [matchData]);
 
   return (
@@ -190,9 +224,8 @@ export default function MatchingScreen() {
         </Text>
         <Text style={styles.userinfoText}>
           성별:{" "}
-          {partnerUserData?.gender && partnerUserData?.gender === 1
-            ? "남자"
-            : "여자"}
+          {partnerUserData?.gender &&
+            (partnerUserData?.gender === 1 ? "남자" : "여자")}
         </Text>
       </View>
       <View style={styles.matchStartContainer}>

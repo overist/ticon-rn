@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   FlatList,
@@ -8,27 +8,65 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
+import firestore from "@react-native-firebase/firestore";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { chatRoomAtom } from "../../store/atoms";
+import { useRecoilValue } from "recoil";
 
 export default function ChatDetailScreen({ route }) {
-  const { matchId } = route.params;
-  console.log("matchId", matchId);
+  // const { matchId } = route.params;
+  const [text, setText] = useState("");
+  const [chatDataList, setChatDataList] = useState([]);
+  const chatRoomState = useRecoilValue(chatRoomAtom);
+  const matchId = route.params.matchId;
 
-  const [messages, setMessages] = useState([
-    { id: 1, text: "안녕하세요!!!!!!!!!!!!", sender: "other", time: "17:12" },
-    { id: 2, text: "안녕하세요!!!!!!!!!!!", sender: "me", time: "17:11" },
-    { id: 3, text: "안녕하세요!!!!!!!!!!", sender: "other", time: "17:10" },
-    { id: 4, text: "안녕하세요!!!!!!!!!", sender: "me", time: "17:09" },
-    { id: 5, text: "안녕하세요!!!!!!!!", sender: "other", time: "17:08" },
-    { id: 6, text: "안녕하세요!!!!!!!", sender: "me", time: "17:07" },
-    { id: 7, text: "안녕하세요!!!!!!", sender: "other", time: "17:06" },
-    { id: 8, text: "안녕하세요!!!!!", sender: "me", time: "17:05" },
-    { id: 9, text: "안녕하세요!!!!", sender: "other", time: "17:04" },
-    { id: 10, text: "안녕하세요!!!", sender: "me", time: "17:03" },
-    { id: 11, text: "안녕하세요!!", sender: "other", time: "17:02" },
-    { id: 12, text: "안녕하세요!", sender: "me", time: "17:01" },
-    { id: 13, text: "안녕하세요", sender: "other", time: "17:00" },
-  ]);
+  const { role, partnerName, partnerImageUrl } = chatRoomState.filter(
+    (v) => v.matchId === matchId
+  )[0];
+
+  const handleChange = (value) => {
+    setText(value);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const newChat = {
+        content: text,
+        sender: role,
+        timestamp: firestore.FieldValue.serverTimestamp(),
+        type: "text",
+      };
+      await firestore()
+        .collection("matches")
+        .doc(matchId)
+        .collection("chats")
+        .add(newChat);
+      setText("");
+    } catch (error) {
+      console.error("Error creating chat: ", error.message);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection("matches")
+      .doc(matchId)
+      .collection("chats")
+      .orderBy("timestamp", "desc")
+      .onSnapshot(
+        (querySnapshot) => {
+          const chats = querySnapshot.docs.map((doc) => ({
+            id: doc.id, // Optionally include the doc ID
+            ...doc.data(),
+          }));
+          setChatDataList(chats);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    return unsubscribe;
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -41,14 +79,14 @@ export default function ChatDetailScreen({ route }) {
           <FlatList
             style={{ flex: 1 }}
             inverted={true}
-            data={messages}
+            data={chatDataList}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <>
                 <Text
                   style={[
                     styles.timeText,
-                    item.sender === "me" && { alignSelf: "flex-end" },
+                    item.sender === role && { alignSelf: "flex-end" },
                   ]}
                 >
                   {item.time}
@@ -56,18 +94,22 @@ export default function ChatDetailScreen({ route }) {
                 <View
                   style={[
                     styles.message,
-                    item.sender === "me" && styles.myMessage,
+                    item.sender === role && styles.myMessage,
                   ]}
                 >
-                  <Text>{item.text}</Text>
+                  <Text>{item.content}</Text>
                 </View>
               </>
             )}
           />
         </View>
         <View style={styles.inputContainer}>
-          <TextInput style={styles.textInput} />
-          <TouchableOpacity style={styles.sendButton} onPress={() => {}}>
+          <TextInput
+            style={styles.textInput}
+            value={text}
+            onChangeText={handleChange}
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={handleSubmit}>
             <Text>전송</Text>
           </TouchableOpacity>
         </View>
